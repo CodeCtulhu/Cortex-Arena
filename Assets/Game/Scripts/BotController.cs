@@ -52,7 +52,7 @@ public class BotController : MonoBehaviour {
 
     #region Neural Outputs
     public int RotationButton { set { this._rotationButton = value; } }
-    public int DashButton { set { this._dashButton = value; } }
+    public bool DashButton { set { this._dashButton = value; } }
     #endregion
 
     #endregion
