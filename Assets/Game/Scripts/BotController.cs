@@ -85,7 +85,7 @@ public class BotController : MonoBehaviour {
         #endregion
 
         //temporary input
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isCooldownFinished)
         {
             dash = true;
         }
@@ -143,9 +143,21 @@ public class BotController : MonoBehaviour {
     private void OnCollisionEnter2D(Collision2D collision)
     {
         var gameObj = collision.gameObject; //Cashe the gameObj 
-        if (isDashing && gameObj.CompareTag("Bot") && gameObj.GetComponent<BotController>().isDashing)
+        if (isDashing && gameObj.CompareTag("Bot") && !gameObj.GetComponent<BotController>().isDashing)
         {
             Destroy(gameObj); //Destroy object
+        }
+        else if (!isDashing && gameObj.CompareTag("Bot") && !gameObj.GetComponent<BotController>().isDashing)
+        {
+            rb.velocity = Vector2.zero;
+            Vector2 direction = -(collision.contacts[0].point - (Vector2)transform.position);
+            rb.AddForce(direction * 5f, ForceMode2D.Impulse);
+        }
+        else
+        {
+            rb.velocity = Vector2.zero;
+            Vector2 direction = -(collision.contacts[0].point - (Vector2)transform.position);
+            rb.AddForce(direction * 5f, ForceMode2D.Impulse);
         }
     }
 
