@@ -39,7 +39,7 @@ public class BotController : MonoBehaviour {
     [SerializeField]
     private float _rotationButton;
     [SerializeField]
-    private int _dashButton;
+    private bool _dashButton;
     #endregion
 
     #region Properties
@@ -81,22 +81,21 @@ public class BotController : MonoBehaviour {
         _raycastLeftDistance = RaycastLeft.distance;
         _raycastLeftDistance = RaycastRight.distance;
 
-        
+
         #endregion
 
-        //temporary input
-        if (Input.GetKeyDown(KeyCode.Space) && isCooldownFinished)
+        #region Bot_Controls(Outputs of the Neural network)
+        if (_dashButton && isCooldownFinished)
         {
             dash = true;
         }
 
-
-        //temporary input
-        _rotationButton = Input.GetAxis("Horizontal");
         RotateBot(_rotationButton);
+        #endregion
+
     }
 
-    
+
     private void RotateBot(float rotationButton)
     {
         float rotAmount = -degreesPerSec * Time.deltaTime * rotationButton; //We take the direction and the magnitude of rotation
