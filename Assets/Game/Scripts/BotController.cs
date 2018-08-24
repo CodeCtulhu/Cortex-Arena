@@ -8,23 +8,33 @@ public class BotController : MonoBehaviour {
 
     #region Variables
 
+    #region Rays
     [Header("Rays")]
     [SerializeField]
     private RaycastHit2D RaycastForward, RaycastLeft, RaycastRight;
     private int distance = 20;
+    #endregion
 
-
+    #region Rotation And Attack
     [Header("Rotation And Attack")]
-    private float degreesPerSec = 180f; //speed of the rotation
 
+    #region Rotation
+
+    private float degreesPerSec = 180f; //speed of the rotation
+    #endregion
+
+    #region Dash/Attack_Values
+    private int health = 3;
     private Rigidbody2D rb;
     private float dashForce = 15f;
     private bool dash = false;
     public bool isDashing = false;
     private bool isCooldownFinished = true;
     private float timer;
+    #endregion
+    #endregion
 
-    #region Neural Inputs
+    #region Neural_Inputs
     [Header("Neural Inputs")]
     [SerializeField]
     private float _raycastForwardDistance;
@@ -34,7 +44,7 @@ public class BotController : MonoBehaviour {
     private float _raycastRightDistance;
     #endregion
 
-    #region Neural Outputs
+    #region Neural_Outputs
     [Header("Neural Outputs")]
     [SerializeField]
     private float _rotationButton;
@@ -42,23 +52,36 @@ public class BotController : MonoBehaviour {
     private bool _dashButton;
     #endregion
 
+    #region For_Neural_Network
+    private bool _hasBeenDestroyed = false;
+    private bool _hasRecievedDamage = false;
+    private bool _hasDealtDamage = false;
+    private bool _hasDestroyedOpponent = false;
+    #endregion
+
     #region Properties
-    
-    #region Neural Inputs
+
+    #region Neural_Inputs
     public float RaycastForwardDistance { get { return this._raycastForwardDistance; } }
     public float RaycastLeftDistance { get { return this._raycastLeftDistance; } }
     public float RaycastRightDistance { get { return this._raycastRightDistance; } }
     #endregion
 
-    #region Neural Outputs
+    #region Neural_Outputs
     public int RotationButton { set { this._rotationButton = value; } }
     public bool DashButton { set { this._dashButton = value; } }
     #endregion
 
+    #region For_Neural_Network
+    public bool HasBeenDestroyed { get { return this._hasBeenDestroyed; } }
+    public bool HasRecievedDamage { get { return this._hasRecievedDamage; } }
+    public bool DealtDamage { get { return this._hasDealtDamage; } }
+    public bool DestroyedOpponent { get { return this._hasDestroyedOpponent; } }
     #endregion
 
     #endregion
 
+    #endregion
 
     private void Start()
     {
@@ -67,6 +90,7 @@ public class BotController : MonoBehaviour {
 
     void Update()
     {
+
         #region Raycasts
         Debug.DrawRay(transform.position, transform.right * distance, Color.white);
         Debug.DrawRay(transform.position, transform.up * distance, Color.white);
@@ -141,12 +165,23 @@ public class BotController : MonoBehaviour {
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        var gameObj = collision.gameObject; //Cashe the gameObj 
-        if (isDashing && gameObj.CompareTag("Bot") && !gameObj.GetComponent<BotController>().isDashing)
+        BotController BotCtrl = collision.gameObject.GetComponent<BotController>(); //Cashe the gameObj 
+        if (isDashing && BotCtrl.gameObject.CompareTag("Bot") && !BotCtrl.isDashing)
         {
-            Destroy(gameObj); //Destroy object
+
+            BotCtrl.health--;
+            if (BotCtrl.health <= 0)
+            {
+                _hasDestroyedOpponent = true;
+                Destroy(BotCtrl.gameObject); //Destroy object
+            }
+            else
+            {
+                _hasDealtDamage = true;
+            }
+            
         }
-        else if (!isDashing && gameObj.CompareTag("Bot") && !gameObj.GetComponent<BotController>().isDashing)
+        else if (!isDashing && BotCtrl.gameObject.CompareTag("Bot") && !BotCtrl.GetComponent<BotController>().isDashing)
         {
             rb.velocity = Vector2.zero;
             Vector2 direction = -(collision.contacts[0].point - (Vector2)transform.position);
