@@ -13,6 +13,18 @@ public class BotController : MonoBehaviour {
     [SerializeField]
     private RaycastHit2D RaycastForward, RaycastLeft, RaycastRight;
     private int distance = 20;
+
+    private int viewAngleChangeSpeed = 1;
+    internal float viewRadius = 20;
+    [Range(0,360)]
+    [SerializeField]
+    internal float viewAngle = 60;
+
+    public LayerMask targetMask;
+    public LayerMask obstacleMask;
+
+    [SerializeField]
+    private BotController opponent;
     #endregion
 
     #region Rotation And Attack
@@ -36,12 +48,15 @@ public class BotController : MonoBehaviour {
 
     #region Neural_Inputs
     [Header("Neural Inputs")]
+
     [SerializeField]
-    private float _raycastForwardDistance;
+    private bool _isEnemyInView;
     [SerializeField]
-    private float _raycastLeftDistance;
+    private bool _isEnemyDashing;
     [SerializeField]
-    private float _raycastRightDistance;
+    private float _viewAngle;
+
+
     #endregion
 
     #region Neural_Outputs
@@ -49,7 +64,10 @@ public class BotController : MonoBehaviour {
     [SerializeField]
     private float _rotationButton;
     [SerializeField]
+    private float _viewAngleChangeButton;
+    [SerializeField]
     private bool _dashButton;
+
     #endregion
 
     #region For_Neural_Network
@@ -62,13 +80,14 @@ public class BotController : MonoBehaviour {
     #region Properties
 
     #region Neural_Inputs
-    public float RaycastForwardDistance { get { return this._raycastForwardDistance; } }
-    public float RaycastLeftDistance { get { return this._raycastLeftDistance; } }
-    public float RaycastRightDistance { get { return this._raycastRightDistance; } }
+    public int RaycastForwardDistance { get { return Convert.ToInt32(this._isEnemyInView); } }
+    public int RaycastLeftDistance { get { return Convert.ToInt32(this._isEnemyDashing); } }
+    public float RaycastRightDistance { get { return this._viewAngle; } }
     #endregion
 
     #region Neural_Outputs
-    public int RotationButton { set { this._rotationButton = value; } }
+    public float RotationButton { set { this._rotationButton = value; } }
+    public float ViewAngleChangeButton { set { this._viewAngleChangeButton = value; } }
     public bool DashButton { set { this._dashButton = value; } }
     #endregion
 
@@ -91,22 +110,8 @@ public class BotController : MonoBehaviour {
     void Update()
     {
 
-        #region Raycasts
-        Debug.DrawRay(transform.position, transform.right * distance, Color.white);
-        Debug.DrawRay(transform.position, transform.up * distance, Color.white);
-        Debug.DrawRay(transform.position, -transform.up * distance, Color.white);
-
-
-        RaycastForward = Physics2D.Raycast(transform.position, transform.right, distance);
-        RaycastLeft = Physics2D.Raycast(transform.position, transform.up, distance);
-        RaycastRight = Physics2D.Raycast(transform.position, -transform.up, distance);
-
-        _raycastForwardDistance = RaycastForward.distance;
-        _raycastLeftDistance = RaycastLeft.distance;
-        _raycastLeftDistance = RaycastRight.distance;
-
-
-        #endregion
+        _isEnemyDashing = opponent.isDashing;
+        _viewAngle = viewAngle;
 
         #region Bot_Controls(Outputs of the Neural network)
         if (_dashButton && isCooldownFinished)
@@ -115,6 +120,7 @@ public class BotController : MonoBehaviour {
         }
 
         RotateBot(_rotationButton);
+        UpdateViewAngle(_viewAngleChangeButton,viewAngleChangeSpeed);
         #endregion
 
     }
@@ -166,26 +172,29 @@ public class BotController : MonoBehaviour {
     private void OnCollisionEnter2D(Collision2D collision)
     {
         BotController BotCtrl = collision.gameObject.GetComponent<BotController>(); //Cashe the gameObj 
-        if (isDashing && BotCtrl.gameObject.CompareTag("Bot") && !BotCtrl.isDashing)
+        if (BotCtrl.gameObject.CompareTag("Bot"))
         {
+            if (isDashing && !BotCtrl.isDashing)
+            {
 
-            BotCtrl.health--;
-            if (BotCtrl.health <= 0)
-            {
-                _hasDestroyedOpponent = true;
-                Destroy(BotCtrl.gameObject); //Destroy object
+                BotCtrl.health--;
+                if (BotCtrl.health <= 0)
+                {
+                    _hasDestroyedOpponent = true;
+                    Destroy(BotCtrl.gameObject); //Destroy object
+                }
+                else
+                {
+                    _hasDealtDamage = true;
+                }
+
             }
-            else
+            else if (!isDashing && !BotCtrl.GetComponent<BotController>().isDashing)
             {
-                _hasDealtDamage = true;
+                rb.velocity = Vector2.zero;
+                Vector2 direction = -(collision.contacts[0].point - (Vector2)transform.position);
+                rb.AddForce(direction * 5f, ForceMode2D.Impulse);
             }
-            
-        }
-        else if (!isDashing && BotCtrl.gameObject.CompareTag("Bot") && !BotCtrl.GetComponent<BotController>().isDashing)
-        {
-            rb.velocity = Vector2.zero;
-            Vector2 direction = -(collision.contacts[0].point - (Vector2)transform.position);
-            rb.AddForce(direction * 5f, ForceMode2D.Impulse);
         }
         else
         {
@@ -195,4 +204,41 @@ public class BotController : MonoBehaviour {
         }
     }
 
+    public Vector3 DirFromAngle(float angleInDegrees,bool isAngleGlobal)
+    {
+        if (!isAngleGlobal)
+        {
+            angleInDegrees += transform.eulerAngles.z - 90;
+        }
+        return new Vector3(-Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), Mathf.Cos(angleInDegrees * Mathf.Deg2Rad), 0 );
+    }
+
+    public void FindVisibleTargets()
+    {
+        Collider2D[] targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position,viewRadius,targetMask);
+
+        for (int i = 0; i < targetsInViewRadius.Length; i++)
+        {
+            Transform target = targetsInViewRadius[i].transform;
+            Vector3 dirToTarget = (target.position - transform.position).normalized;
+            if (Vector3.Angle(transform.right,dirToTarget) < viewAngle / 2)
+            {
+                float dstToTarget = Vector3.Distance(transform.position,target.position);
+                if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget,obstacleMask))
+                {
+                    _isEnemyInView = true;
+                }
+                else
+                {
+                    _isEnemyInView = false;
+                }
+            }
+        }
+    }
+
+    private void UpdateViewAngle(float angleChangeButton,int viewAngleChangeSpeed)
+    {
+        viewAngle += angleChangeButton * viewAngleChangeSpeed;
+        viewAngle = Mathf.Clamp(viewAngle,0,360);
+    }
 }
