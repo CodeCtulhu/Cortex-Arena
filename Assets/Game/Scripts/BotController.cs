@@ -9,11 +9,8 @@ public class BotController : MonoBehaviour {
     #region Variables
 
     #region Rays
-    [Header("Rays")]
+    [Header("View")]
     [SerializeField]
-    private RaycastHit2D RaycastForward, RaycastLeft, RaycastRight;
-    private int distance = 20;
-
     private int viewAngleChangeSpeed = 1;
     internal float viewRadius = 20;
     [Range(0,360)]
@@ -24,7 +21,7 @@ public class BotController : MonoBehaviour {
     public LayerMask obstacleMask;
 
     [SerializeField]
-    private BotController opponent;
+    private BotController _opponent;
     #endregion
 
     #region Rotation And Attack
@@ -71,10 +68,10 @@ public class BotController : MonoBehaviour {
     #endregion
 
     #region For_Neural_Network
-    private bool _hasBeenDestroyed = false;
-    private bool _hasRecievedDamage = false;
-    private bool _hasDealtDamage = false;
-    private bool _hasDestroyedOpponent = false;
+    public bool _hasBeenDestroyed = false;
+    public bool _hasRecievedDamage = false;
+    public bool _hasDealtDamage = false;
+    public bool _hasDestroyedOpponent = false;
     #endregion
 
     #region Properties
@@ -92,10 +89,12 @@ public class BotController : MonoBehaviour {
     #endregion
 
     #region For_Neural_Network
-    public bool HasBeenDestroyed { get { return this._hasBeenDestroyed; } }
-    public bool HasRecievedDamage { get { return this._hasRecievedDamage; } }
-    public bool DealtDamage { get { return this._hasDealtDamage; } }
-    public bool DestroyedOpponent { get { return this._hasDestroyedOpponent; } }
+    public bool HasBeenDestroyed { get { return this._hasBeenDestroyed; } set { this._hasBeenDestroyed = value; } }
+    public bool HasRecievedDamage { get { return this._hasRecievedDamage; } set { this._hasRecievedDamage = value; } }
+    public bool HasDealtDamage { get { return this._hasDealtDamage; } set { this._hasDealtDamage = value; } }
+    public bool HasDestroyedOpponent { get { return this._hasDestroyedOpponent; } set { this._hasDestroyedOpponent = value; } }
+    public BotController Opponent { get { return this._opponent; } set { this._opponent = value; } }
+
     #endregion
 
     #endregion
@@ -110,7 +109,7 @@ public class BotController : MonoBehaviour {
     void Update()
     {
 
-        _isEnemyDashing = opponent.isDashing;
+        _isEnemyDashing = _opponent.isDashing;
         _viewAngle = viewAngle;
 
         #region Bot_Controls(Outputs of the Neural network)
@@ -121,6 +120,7 @@ public class BotController : MonoBehaviour {
 
         RotateBot(_rotationButton);
         UpdateViewAngle(_viewAngleChangeButton,viewAngleChangeSpeed);
+        FindVisibleTargets();
         #endregion
 
     }
@@ -178,13 +178,16 @@ public class BotController : MonoBehaviour {
             {
 
                 BotCtrl.health--;
+                
                 if (BotCtrl.health <= 0)
                 {
                     _hasDestroyedOpponent = true;
+                    BotCtrl._hasBeenDestroyed = true;
                     Destroy(BotCtrl.gameObject); //Destroy object
                 }
                 else
                 {
+                    BotCtrl._hasRecievedDamage = true;
                     _hasDealtDamage = true;
                 }
 
@@ -226,6 +229,7 @@ public class BotController : MonoBehaviour {
                 float dstToTarget = Vector3.Distance(transform.position,target.position);
                 if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget,obstacleMask))
                 {
+                    Debug.DrawRay(transform.position, dirToTarget * dstToTarget,Color.red);
                     _isEnemyInView = true;
                 }
                 else

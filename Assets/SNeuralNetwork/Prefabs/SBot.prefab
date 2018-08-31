@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 58783549627087156}
   - component: {fileID: 114919899186734746}
   - component: {fileID: 114845949649119710}
-  m_Layer: 2
+  m_Layer: 8
   m_Name: SBot
   m_TagString: Bot
   m_Icon: {fileID: 0}
@@ -101,11 +101,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5386f0ae8a073b84ba9dd352d3bb45e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  viewAngleChangeSpeed: 1
+  viewAngle: 60
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 256
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 512
+  _opponent: {fileID: 0}
   isDashing: 0
-  _raycastForwardDistance: 0
-  _raycastLeftDistance: 0
-  _raycastRightDistance: 0
+  _isEnemyInView: 0
+  _isEnemyDashing: 0
+  _viewAngle: 0
   _rotationButton: 0
+  _viewAngleChangeButton: 0
   _dashButton: 0
 --- !u!212 &212285542034469916
 SpriteRenderer:
