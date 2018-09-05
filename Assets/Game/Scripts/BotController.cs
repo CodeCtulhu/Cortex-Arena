@@ -52,6 +52,8 @@ public class BotController : MonoBehaviour {
     private bool _isEnemyDashing;
     [SerializeField]
     private float _viewAngle;
+    [SerializeField]
+    private float _enemyDistance;
 
 
     #endregion
@@ -77,9 +79,11 @@ public class BotController : MonoBehaviour {
     #region Properties
 
     #region Neural_Inputs
-    public int RaycastForwardDistance { get { return Convert.ToInt32(this._isEnemyInView); } }
-    public int RaycastLeftDistance { get { return Convert.ToInt32(this._isEnemyDashing); } }
-    public float RaycastRightDistance { get { return this._viewAngle; } }
+    public int IsEnemyInView { get { return Convert.ToInt32(this._isEnemyInView); } }
+    public int IsEnemyDashing { get { return Convert.ToInt32(this._isEnemyDashing); } }
+    public float ViewAngle { get { return this._viewAngle; } }
+    public float EnemyDistance { get { return Convert.ToInt32(this._enemyDistance); } }
+
     #endregion
 
     #region Neural_Outputs
@@ -111,6 +115,7 @@ public class BotController : MonoBehaviour {
 
         _isEnemyDashing = _opponent.isDashing;
         _viewAngle = viewAngle;
+        
 
         #region Bot_Controls(Outputs of the Neural network)
         if (_dashButton && isCooldownFinished)
@@ -166,7 +171,7 @@ public class BotController : MonoBehaviour {
                 timer = 0;
             }
         }
-        #endregion
+        #endregion 
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -222,20 +227,27 @@ public class BotController : MonoBehaviour {
 
         for (int i = 0; i < targetsInViewRadius.Length; i++)
         {
+            float dstToTarget;
             Transform target = targetsInViewRadius[i].transform;
             Vector3 dirToTarget = (target.position - transform.position).normalized;
-            if (Vector3.Angle(transform.right,dirToTarget) < viewAngle / 2)
+            if (Vector3.Angle(transform.up,dirToTarget) < viewAngle / 2)
             {
-                float dstToTarget = Vector3.Distance(transform.position,target.position);
+                dstToTarget = Vector3.Distance(transform.position,target.position);
                 if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget,obstacleMask))
                 {
+                    //Debug.Log(dstToTarget);
+
                     Debug.DrawRay(transform.position, dirToTarget * dstToTarget,Color.red);
+                    _enemyDistance = dstToTarget;
                     _isEnemyInView = true;
                 }
-                else
-                {
-                    _isEnemyInView = false;
-                }
+                
+            }
+            else if(!Physics2D.Raycast(transform.position, dirToTarget, Vector3.Distance(transform.position, target.position), obstacleMask))
+            {
+                
+                dstToTarget = Vector3.Distance(transform.position, target.position);
+                _isEnemyInView = false;
             }
         }
     }

@@ -54,7 +54,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4948128383654704}
   - component: {fileID: 114236929326857812}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -187,7 +187,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4609523395915800}
   - component: {fileID: 114112342721263024}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4609486234081350}
   - component: {fileID: 212009924596821242}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -302,7 +302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4866165341724348}
   - component: {fileID: 114751495832030712}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -403,7 +403,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4112049526819782}
   - component: {fileID: 114482742900567322}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -517,7 +517,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4083511796665654}
   - component: {fileID: 114486560393423370}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -533,7 +533,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4298528826024114}
   - component: {fileID: 212433802112075280}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -583,7 +583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4667444353722964}
   - component: {fileID: 114881159449746738}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -650,7 +650,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4950180155995990}
   - component: {fileID: 114224468547834758}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -800,7 +800,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4727335782697358}
   - component: {fileID: 114236923887622902}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -850,7 +850,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4645645257587236}
   - component: {fileID: 212280894240860490}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -881,7 +881,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4974890212000930}
   - component: {fileID: 114580874546203044}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -981,7 +981,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4061783724756788}
   - component: {fileID: 114035056869742068}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -997,7 +997,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4023833910690130}
   - component: {fileID: 114578425735672106}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint (1)
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -1013,7 +1013,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4998412499953182}
   - component: {fileID: 212235582076222928}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1061,7 +1061,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4817646132217614}
   - component: {fileID: 114454921667526472}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: _SpawnPoint
   m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
@@ -1145,7 +1145,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4512699776708480}
   - component: {fileID: 212757385987734240}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1178,7 +1178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4159716014110512}
   - component: {fileID: 212729631988416800}
-  m_Layer: 9
+  m_Layer: 2
   m_Name: Arena Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

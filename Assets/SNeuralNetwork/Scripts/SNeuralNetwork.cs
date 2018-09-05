@@ -29,7 +29,7 @@ public class SNeuralNetwork : MonoBehaviour
         }
 
         /// <summary>
-        /// This function is used to get valuese from -1 to 0 this will only be used for the rotation output.
+        /// This function is used to get valuese from 0 to 1 this will only be used for the rotation output.
         /// </summary>
         /// <param name="x">
         /// This is the input for the function (float)
@@ -147,7 +147,7 @@ public class SNeuralNetwork : MonoBehaviour
         /// <returns></returns>
         private float GenRandomWeight()
         {
-            return UnityEngine.Random.Range(-4f, 4f);
+            return UnityEngine.Random.Range(-8f, 8f);
         }
     }
 
@@ -159,16 +159,6 @@ public class SNeuralNetwork : MonoBehaviour
         #region Variables
         #region Variables For Fitness
         //These values will be used for measuring fitness of out neural network
-
-        /// <summary>
-        /// Time that the bit will have till it dies
-        /// </summary>
-        const float deathTimerReset = 30;
-
-        /// <summary>
-        /// The death timer, if 0 then bot dies.
-        /// </summary>
-        float deathTimer;
 
         /// <summary>
         /// This will determine which generation we will use for crossover
@@ -187,10 +177,12 @@ public class SNeuralNetwork : MonoBehaviour
         /// <summary>
         /// the genetic code that contains weights of each neuron of the nural network
         /// </summary>
-        private float[] _genticCode = new float[67];
+        private float[] _genticCode = new float[72];
 
 
         public string ReadGeneticCode { get { return string.Join(",", _genticCode); } }
+        public float[] ReadFloatGeneticCode { get { return this._genticCode; } }
+
 
         /// <summary>
         /// New Neuron[6] will be assigned later as a first Hidden layer of 6 neurons
@@ -217,6 +209,8 @@ public class SNeuralNetwork : MonoBehaviour
         /// </summary>
         internal Neuron angleViewOutputNeuron;
 
+        
+
         #endregion
         #endregion
 
@@ -229,10 +223,22 @@ public class SNeuralNetwork : MonoBehaviour
             rotationOutputNeuron = new Neuron(4);
             dashOutputNeuron = new Neuron(4);
             angleViewOutputNeuron = new Neuron(4);
-            hL1 = InitializeLayer(6, 3);
+            hL1 = InitializeLayer(6, 4);
             hL2 = InitializeLayer(4, 6);
             InitializeGeneticCode();
         }
+
+        internal NeuralNetwork(BotController botctrl,float[] geneticCode)
+        {
+            botController = botctrl;
+            rotationOutputNeuron = new Neuron(4);
+            dashOutputNeuron = new Neuron(4);
+            angleViewOutputNeuron = new Neuron(4);
+            hL1 = InitializeLayer(6, 4);
+            hL2 = InitializeLayer(4, 6);
+            SetGeneticCode(geneticCode);
+        }
+
 
 
         /// <summary>
@@ -285,16 +291,19 @@ public class SNeuralNetwork : MonoBehaviour
                 {
                     if (i == 0)
                     {
-                        neuron.inputs[i] = botController.RaycastLeftDistance;
+                        neuron.inputs[i] = botController.IsEnemyInView;
                     }
                     else if (i == 1)
                     {
-                        neuron.inputs[i] =  botController.RaycastForwardDistance;
-
+                        neuron.inputs[i] =  botController.IsEnemyDashing;
                     }
                     else if (i == 2)
                     {
-                        neuron.inputs[i] =  botController.RaycastRightDistance;
+                        neuron.inputs[i] =  botController.ViewAngle;
+                    }
+                    else if (i == 3)
+                    {
+                        neuron.inputs[i] = botController.EnemyDistance;
                     }
                 }
             }
@@ -325,7 +334,7 @@ public class SNeuralNetwork : MonoBehaviour
                 dashOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
             }
 
-            for (int i = 0; i <= dashOutputNeuron.inputs.Length - 1; i++)
+            for (int i = 0; i <= angleViewOutputNeuron.inputs.Length - 1; i++)
             {
                 angleViewOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
             }
@@ -415,6 +424,12 @@ public class SNeuralNetwork : MonoBehaviour
         public void SetGeneticCode(string inputGeneticCode)
         {
             _genticCode = Array.ConvertAll(inputGeneticCode.Split(','), float.Parse);
+            ApplyGeneticCode();
+        }
+
+        public void SetGeneticCode(float[] inputGeneticCode)
+        {
+            _genticCode = inputGeneticCode;
             ApplyGeneticCode();
         }
 
