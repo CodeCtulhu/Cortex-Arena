@@ -177,7 +177,7 @@ public class SNeuralNetwork : MonoBehaviour
         /// <summary>
         /// the genetic code that contains weights of each neuron of the nural network
         /// </summary>
-        private float[] _genticCode = new float[72];
+        private float[] _genticCode = new float[78];
 
 
         public string ReadGeneticCode { get { return string.Join(",", _genticCode); } }
@@ -205,11 +205,17 @@ public class SNeuralNetwork : MonoBehaviour
         internal Neuron dashOutputNeuron;
 
         /// <summary>
+        /// Will be assigned later as a angle dash back Ouput neuron of the network
+        /// </summary>
+        internal Neuron dashBackOutputNeuron;
+
+        /// <summary>
         /// Will be assigned later as a angle view Ouput neuron of the network
         /// </summary>
         internal Neuron angleViewOutputNeuron;
 
-        
+
+
 
         #endregion
         #endregion
@@ -222,6 +228,7 @@ public class SNeuralNetwork : MonoBehaviour
             botController = botctrl;
             rotationOutputNeuron = new Neuron(4);
             dashOutputNeuron = new Neuron(4);
+            dashBackOutputNeuron = new Neuron(4);
             angleViewOutputNeuron = new Neuron(4);
             hL1 = InitializeLayer(6, 4);
             hL2 = InitializeLayer(4, 6);
@@ -233,6 +240,7 @@ public class SNeuralNetwork : MonoBehaviour
             botController = botctrl;
             rotationOutputNeuron = new Neuron(4);
             dashOutputNeuron = new Neuron(4);
+            dashBackOutputNeuron = new Neuron(4);
             angleViewOutputNeuron = new Neuron(4);
             hL1 = InitializeLayer(6, 4);
             hL2 = InitializeLayer(4, 6);
@@ -326,7 +334,12 @@ public class SNeuralNetwork : MonoBehaviour
 
             for (int i = 0; i <= rotationOutputNeuron.inputs.Length - 1; i++)
             {
-                rotationOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
+                rotationOutputNeuron.inputs[i] = inputNeuronLayer[i].SoftSignOutput;
+            }
+
+            for (int i = 0; i <= angleViewOutputNeuron.inputs.Length - 1; i++)
+            {
+                angleViewOutputNeuron.inputs[i] = inputNeuronLayer[i].SoftSignOutput;
             }
 
             for (int i = 0; i <= dashOutputNeuron.inputs.Length - 1; i++)
@@ -334,10 +347,13 @@ public class SNeuralNetwork : MonoBehaviour
                 dashOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
             }
 
-            for (int i = 0; i <= angleViewOutputNeuron.inputs.Length - 1; i++)
+            for (int i = 0; i <= dashBackOutputNeuron.inputs.Length - 1; i++)
             {
-                angleViewOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
+                dashOutputNeuron.inputs[i] = inputNeuronLayer[i].SigmoidOutput;
             }
+
+
+            
         }
 
 
@@ -407,7 +423,7 @@ public class SNeuralNetwork : MonoBehaviour
                 tempList.Add(hL2[i].biasWeight);
             }
 
-            Neuron[] outputLayer = { rotationOutputNeuron, dashOutputNeuron, angleViewOutputNeuron };
+            Neuron[] outputLayer = { rotationOutputNeuron, dashOutputNeuron,dashBackOutputNeuron, angleViewOutputNeuron };
             for (int i = 0; i < outputLayer.Length; i++)
             {
 
@@ -417,6 +433,7 @@ public class SNeuralNetwork : MonoBehaviour
                 }
                 tempList.Add(outputLayer[i].biasWeight);
             }
+
 
             _genticCode = tempList.ToArray();
         }
@@ -459,7 +476,7 @@ public class SNeuralNetwork : MonoBehaviour
                 hL2[i].biasWeight = tempQueue.Dequeue();
             }
 
-            Neuron[] outputLayer = { rotationOutputNeuron, dashOutputNeuron, angleViewOutputNeuron };
+            Neuron[] outputLayer = { rotationOutputNeuron, dashOutputNeuron, dashBackOutputNeuron, angleViewOutputNeuron };
             for (int i = 0; i < outputLayer.Length; i++)
             {
 
@@ -473,8 +490,10 @@ public class SNeuralNetwork : MonoBehaviour
 
     }
 
-    private void Start()
+
+    private void Awake()
     {
+
         NNbotController = GetComponent<BotController>();
         NN = new NeuralNetwork(NNbotController);
     }

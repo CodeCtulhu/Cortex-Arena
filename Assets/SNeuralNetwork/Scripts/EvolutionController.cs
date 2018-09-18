@@ -21,8 +21,9 @@ public class EvolutionController : MonoBehaviour
 
     public SNeuralNetwork[] NNAgents;
     public Transform[] spawnPointsTransforms;
-    public Queue<int> fitnesses;
-    public SNeuralNetwork[] fittestAgents;
+    public Queue<int> fitnesses = new Queue<int>();
+    [SerializeField]
+    public float[][] fittestAgents;
 
     private float[][] nextGenerationCodes;
 
@@ -30,9 +31,9 @@ public class EvolutionController : MonoBehaviour
     /// <summary>
     /// The death timer, if 0 then bot dies.
     /// </summary>
-    private float deathTimer = 5;
+    private float deathTimer = 10;
 
-    private bool firstGeneration = true;
+    private bool firstGeneration = false;
     private bool weakGenerations = false;
     private bool laterGenerations = false;
     private bool firstGenerationInitialization = false;
@@ -41,7 +42,7 @@ public class EvolutionController : MonoBehaviour
 
 
 
-    private void Start()
+    private void Awake()
     {
         GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         spawnPointsTransforms = new Transform[spawnPoints.Length];
@@ -54,6 +55,7 @@ public class EvolutionController : MonoBehaviour
 
         SpawnAgents();
 
+        firstGeneration = true;
 
         AddStatPanels();
         UpdatePanels();
@@ -65,19 +67,32 @@ public class EvolutionController : MonoBehaviour
         if (firstGeneration)
         {
 
-            Debug.Log(deathTimer);
+            //Debug.Log("timer 1: " + deathTimer);
             if (deathTimer <= 0)
             {
+
+
                 GameObject[] bots = GameObject.FindGameObjectsWithTag("Bot");
-                fittestAgents = FindFittestBots(NNAgents, fitnesses.ToArray(), 4);
+
                 for (int i = 0; i < bots.Length; i++)
                 {
                     fitnesses.Enqueue(NNAgents[i].fitness);
-                    Debug.Log("Destroying");
+                }
+
+                fittestAgents = FindFittestBots(NNAgents, fitnesses.ToArray(), 4);
+                fitnesses.Clear();
+
+
+
+
+                for (int i = 0; i < bots.Length; i++)
+                {
+
                     Destroy(bots[i]);
-                    Debug.Log("Destroying2");
+
 
                 }
+
 
 
                 nextGenerationCodes = Breed(fittestAgents, 6);
@@ -87,7 +102,7 @@ public class EvolutionController : MonoBehaviour
             }
             else
             {
-                deathTimer -= Time.deltaTime * 1;
+                deathTimer -= Time.deltaTime;
 
 
             }
@@ -109,25 +124,29 @@ public class EvolutionController : MonoBehaviour
                 SpawnAgents(nextGenerationCodes);
 
                 weakGenerationInitialization = true;
+                deathTimer = 1000005;
             }
-            
 
-            Debug.Log(deathTimer);
+
+            //Debug.Log("timer 2: " + deathTimer);
             if (deathTimer <= 0)
             {
                 GameObject[] bots = GameObject.FindGameObjectsWithTag("Bot");
-                fittestAgents = FindFittestBots(NNAgents, fitnesses.ToArray(), 4);
                 for (int i = 0; i < bots.Length; i++)
                 {
+
                     fitnesses.Enqueue(NNAgents[i].fitness);
                     Destroy(bots[i]);
                 }
 
+                fittestAgents = FindFittestBots(NNAgents, fitnesses.ToArray(), 4);
+                fitnesses.Clear();
 
                 nextGenerationCodes = Breed(fittestAgents, 6);
 
                 firstGeneration = false;
                 weakGenerations = true;
+                weakGenerationInitialization = false;
             }
             else
             {
@@ -136,10 +155,7 @@ public class EvolutionController : MonoBehaviour
 
             }
         }
-        if (laterGenerations)
-        {
-
-        }
+        
 
         UpdatePanels();
     }
@@ -174,7 +190,6 @@ public class EvolutionController : MonoBehaviour
             statPanel.fitness.text = NNAgents[i].fitness.ToString();
             //Debug.Log(NNAgents[i].NN.ReadGeneticCode);
             statPanel.geneticCode.text = NNAgents[i].NN.ReadGeneticCode;
-
         }
     }
 
@@ -185,18 +200,50 @@ public class EvolutionController : MonoBehaviour
     /// <returns>
     /// this is the amount of bots you will return
     /// </returns>
-    private SNeuralNetwork[] FindFittestBots(SNeuralNetwork[] inputAgentArray, int[] fitnessArray, int requiredAmount)
+    private float[][] FindFittestBots(SNeuralNetwork[] inputAgentArray, int[] fitnessArray, int requiredAmount)
     {
-        SNeuralNetwork[] fittestAgents = new SNeuralNetwork[requiredAmount];
+        float[][] fittestAgents = new float[requiredAmount][];
+        float[][] agentCodeArray = new float[inputAgentArray.Length][];
+
+        for (int i = 0; i < agentCodeArray.Length; i++)
+        {
+            agentCodeArray[i] = inputAgentArray[i].NN.ReadFloatGeneticCode;
+        }
+
 
         for (int i = 0; i < fittestAgents.Length; i++)
         {
-            int maxIndex = fitnessArray.ToList().IndexOf(fitnessArray.Max());
-            fittestAgents[i] = inputAgentArray[maxIndex];
-            fitnessArray[maxIndex] = 0;
-            Debug.Log(fitnessArray);
+            int value = fitnessArray.Max();
+            int maxIndex = fitnessArray.ToList().IndexOf(value);
+
+            List<int> maxIndexes =
+                fitnessArray.Select((s, ix) => new { ix, s })
+                    .Where(t => t.s == value)
+                    .Select(t => t.ix)
+                    .ToList();
+
+
+            Debug.Log(fitnessArray.Length);
+
+
+
+            if (maxIndexes.Count > 1)
+            {
+
+                maxIndex = maxIndexes[UnityEngine.Random.Range(0,maxIndexes.Count)];
+
+            }
+
+
+
+
+            fittestAgents[i] = agentCodeArray[maxIndex];
+
+            fitnessArray[maxIndex] = int.MinValue;
+
+
         }
-        Debug.Log(fittestAgents);
+
         return fittestAgents;
     }
 
@@ -210,11 +257,12 @@ public class EvolutionController : MonoBehaviour
     /// make sure that This is right amount (has to divde the genetic code length without leftovers)
     /// </param>
     /// <returns> </returns>
-    private float[][] Breed(SNeuralNetwork[] inputParents, int alleleDivision)
+    private float[][] Breed(float[][] inputParents, int alleleDivision)
     {
         float[][] childAgents = new float[12][];
 
         string[] childAgentsString = new string[12];
+
 
         //72 / 12 = 6 for each .Each of those should be mutated. for each 6 indexes 1 of those parts should be mutated
         childAgentsString = GeneticCrossover(inputParents, alleleDivision);
@@ -224,45 +272,61 @@ public class EvolutionController : MonoBehaviour
 
         for (int i = 0; i < childAgents.Length; i++)
         {
-            childAgents[i] = Array.ConvertAll(childAgentsString[i].Split(','), float.Parse);
+            childAgents[i] = Array.ConvertAll(childAgentsString[i].Split(';'), float.Parse);
         }
         return childAgents; 
 
         
     }
 
-    private string[] GeneticCrossover(SNeuralNetwork[] inputParents,int alleleDivision)
+    private string[] GeneticCrossover(float[][] inputParents,int alleleDivision)
     {
         float[][] crossoverAgents = new float[12][];
         string[] crossoverOutcome = new string[12];
-        int arrayLength = inputParents[0].NN.ReadFloatGeneticCode.Length;
+        int arrayLength = inputParents[0].Length;
 
-        crossoverAgents[0] = inputParents[0].NN.ReadFloatGeneticCode;
-        crossoverAgents[1] = inputParents[1].NN.ReadFloatGeneticCode;
+        crossoverAgents[0] = inputParents[0];
+        crossoverAgents[1] = inputParents[1];
 
-        int counter = 0;
-        int arrayCreateCounter = 0;
+        int arrayCreateCounter = 2;
+
         for (int i = 0; i < inputParents.Length; i++)
         {
             for (int ii = i + 1; ii < inputParents.Length; ii++)
             {
-                if (UnityEngine.Random.value < 0.5)
-                {
-                    crossoverAgents[arrayCreateCounter] = inputParents[i].NN.ReadFloatGeneticCode;
-                    arrayCreateCounter++;
-                    crossoverAgents[arrayCreateCounter] = inputParents[ii].NN.ReadFloatGeneticCode;
-                    arrayCreateCounter++;
 
-                    for (int iii = 0; iii <= arrayLength; iii+= alleleDivision)
+
+                crossoverAgents[arrayCreateCounter] = inputParents[i];
+                arrayCreateCounter++;
+                crossoverAgents[arrayCreateCounter] = inputParents[ii];
+                arrayCreateCounter++;
+
+
+                for (int iii = 0; iii < arrayLength; iii += alleleDivision)
+                {
+
+
+                    if (UnityEngine.Random.value < 0.5)
                     {
-                        Array.Copy(crossoverAgents[arrayCreateCounter - 1],iii, crossoverAgents[arrayCreateCounter - 2],iii,alleleDivision);
+                        float[] temp = new float[alleleDivision];
+
+                        //Array.Copy(crossoverAgents[arrayCreateCounter - 2], iii, temp, 0, alleleDivision);
+                        //Array.Copy(crossoverAgents[arrayCreateCounter - 1], iii, crossoverAgents[arrayCreateCounter - 2], iii, alleleDivision);
+                        //Array.Copy(temp, 0, crossoverAgents[arrayCreateCounter - 1], iii, alleleDivision);
+
+
+
+
+                        Swap(ref crossoverAgents[arrayCreateCounter - 1], iii, ref crossoverAgents[arrayCreateCounter - 2], iii, alleleDivision);
+
                     }
-                    counter += 2;
-                    if (counter >= 12)
-                    {
-                        goto exit;
-                    }
+
                 }
+                if (arrayCreateCounter >= 12)
+                {
+                    goto exit;
+                }
+                
             }
             
         }
@@ -270,8 +334,7 @@ public class EvolutionController : MonoBehaviour
 
         for (int i = 0; i < crossoverOutcome.Length; i++)
         {
-            crossoverOutcome[i] = string.Join(",", crossoverAgents[i]);
-
+            crossoverOutcome[i] = string.Join(";", crossoverAgents[i]);
         }
 
         return crossoverOutcome;
@@ -294,14 +357,20 @@ public class EvolutionController : MonoBehaviour
         string[] mutationOutcome = new string[12];
 
 
+
         for (int i = 0; i < geneticCodeToMutate.Length; i++)
         {
-            geneticCodeToMutate[i] = Array.ConvertAll(inputNNCode[i].Split(','), float.Parse);
+            geneticCodeToMutate[i] = Array.ConvertAll(inputNNCode[i].Split(';'), float.Parse);
+
         }
 
-        for (int ii = 0; ii < geneticCodeToMutate[0].Length; ii++)
+
+
+
+
+        for (int i = 0; i < geneticCodeToMutate.Length; i++)
         {
-            for (int i = 0; i <= geneticCodeToMutate[0].Length / alleleDivision; i++)
+            for (int ii = 0; ii < geneticCodeToMutate[0].Length / alleleDivision; ii++)
             {
                 geneticCodeToMutate[i][UnityEngine.Random.Range(alleleDivision * ii, (ii + 1) * 5)] = UnityEngine.Random.Range(-8f, 8f);
             }
@@ -310,7 +379,7 @@ public class EvolutionController : MonoBehaviour
 
         for (int i = 0; i < geneticCodeToMutate.Length; i++)
         {
-            mutationOutcome[i] = string.Join(",", geneticCodeToMutate[i]);
+            mutationOutcome[i] = string.Join(";", geneticCodeToMutate[i]);
 
         }
 
@@ -342,15 +411,40 @@ public class EvolutionController : MonoBehaviour
             firstBot.GetComponent<BotController>().Opponent = secondBot.GetComponent<BotController>();
             secondBot.GetComponent<BotController>().Opponent = firstBot.GetComponent<BotController>();
 
+            firstBot.GetComponent<SNeuralNetwork>().NN.SetGeneticCode(geneticCodes[i - 1]);
             NNAgents[i - 1] = firstBot.GetComponent<SNeuralNetwork>();
-            NNAgents[i - 1].NN.SetGeneticCode(geneticCodes[i - 1]);
+
+            secondBot.GetComponent<SNeuralNetwork>().NN.SetGeneticCode(geneticCodes[i]);
             NNAgents[i] = secondBot.GetComponent<SNeuralNetwork>();
-            NNAgents[i].NN.SetGeneticCode(geneticCodes[i]);
 
         }
     }
 
 
+    void Swap(ref float[] one, int oneIndex, ref float[] two, int twoIndex, int length)
+    {
+        List<float> tempOne = new List<float>();
+        List<float> tempTwo = new List<float>();
 
-    
+        for (int i = oneIndex; i < oneIndex + length; i++)
+        {
+            tempOne.Add(one[i]);
+        }
+        for (int i = twoIndex; i < twoIndex + length; i++)
+        {
+            tempTwo.Add(two[i]);
+        }
+        int index = 0;
+        for (int i = oneIndex; i < oneIndex + length; i++)
+        {
+            one[i] = tempTwo[index++];
+        }
+        index = 0;
+        for (int i = twoIndex; i < twoIndex + length; i++)
+        {
+            two[i] = tempOne[index++];
+        }
+    }
+
+
 }

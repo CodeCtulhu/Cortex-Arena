@@ -37,9 +37,14 @@ public class BotController : MonoBehaviour {
     private Rigidbody2D rb;
     private float dashForce = 15f;
     private bool dash = false;
+    private bool dashBack = false;
     public bool isDashing = false;
-    private bool isCooldownFinished = true;
+    public bool isDashingBack = false;
+    private bool hasDashCooldownFinished = true;
+    private bool hasDashBackCooldownFinished = true;
     private float timer;
+    private float timerBack;
+
     #endregion
     #endregion
 
@@ -66,6 +71,8 @@ public class BotController : MonoBehaviour {
     private float _viewAngleChangeButton;
     [SerializeField]
     private bool _dashButton;
+    [SerializeField]
+    private bool _dashBackButton;
 
     #endregion
 
@@ -82,7 +89,7 @@ public class BotController : MonoBehaviour {
     public int IsEnemyInView { get { return Convert.ToInt32(this._isEnemyInView); } }
     public int IsEnemyDashing { get { return Convert.ToInt32(this._isEnemyDashing); } }
     public float ViewAngle { get { return this._viewAngle; } }
-    public float EnemyDistance { get { return Convert.ToInt32(this._enemyDistance); } }
+    public float EnemyDistance { get { return this._enemyDistance; } }
 
     #endregion
 
@@ -90,6 +97,8 @@ public class BotController : MonoBehaviour {
     public float RotationButton { set { this._rotationButton = value; } }
     public float ViewAngleChangeButton { set { this._viewAngleChangeButton = value; } }
     public bool DashButton { set { this._dashButton = value; } }
+    public bool DashBackButton { set { this._dashButton = value; } }
+
     #endregion
 
     #region For_Neural_Network
@@ -118,9 +127,14 @@ public class BotController : MonoBehaviour {
         
 
         #region Bot_Controls(Outputs of the Neural network)
-        if (_dashButton && isCooldownFinished)
+        if (_dashButton && hasDashCooldownFinished)
         {
             dash = true;
+        }
+
+        if (!_dashButton && _dashBackButton && hasDashBackCooldownFinished && hasDashCooldownFinished)
+        {
+            dashBack = true;
         }
 
         RotateBot(_rotationButton);
@@ -144,21 +158,27 @@ public class BotController : MonoBehaviour {
         rb.AddForce(transform.right * dashForce, ForceMode2D.Impulse);
     }
 
+    private void DashBack(float dashForce)
+    {
+        rb.velocity = Vector2.zero;
+        rb.AddForce(-transform.right * dashForce, ForceMode2D.Impulse);
+    }
+
 
     private void FixedUpdate()
     {
-        #region
-        if (dash & isCooldownFinished)
+        #region Dashing 
+        if (dash & hasDashCooldownFinished)
         {
             dash = false;
             isDashing = true;
             Dash(dashForce);
             
             timer = 1;
-            isCooldownFinished = false;
+            hasDashCooldownFinished = false;
             
         }
-        else if (!isCooldownFinished)
+        else if (!hasDashCooldownFinished)
         {
             if (rb.velocity.magnitude <= 3f)
             {
@@ -167,8 +187,34 @@ public class BotController : MonoBehaviour {
             timer -= Time.deltaTime;
             if (timer <= 0)
             {
-                isCooldownFinished = true;
+                hasDashCooldownFinished = true;
                 timer = 0;
+            }
+        }
+        #endregion 
+
+        #region Dashing_Backwards
+        if (dashBack & hasDashBackCooldownFinished)
+        {
+            dashBack = false;
+            isDashingBack = true;
+            DashBack(dashForce);
+
+            timerBack = 1;
+            hasDashCooldownFinished = false;
+
+        }
+        else if (!hasDashBackCooldownFinished)
+        {
+            if (rb.velocity.magnitude <= 3f)
+            {
+                isDashingBack = false;
+            }
+            timerBack -= Time.deltaTime;
+            if (timerBack <= 0)
+            {
+                hasDashBackCooldownFinished = true;
+                timerBack = 0;
             }
         }
         #endregion 
@@ -230,24 +276,24 @@ public class BotController : MonoBehaviour {
             float dstToTarget;
             Transform target = targetsInViewRadius[i].transform;
             Vector3 dirToTarget = (target.position - transform.position).normalized;
-            if (Vector3.Angle(transform.up,dirToTarget) < viewAngle / 2)
+            if (Vector3.Angle(transform.up, dirToTarget) < viewAngle / 2)
             {
-                dstToTarget = Vector3.Distance(transform.position,target.position);
-                if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget,obstacleMask))
+                dstToTarget = Vector3.Distance(transform.position, target.position);
+                if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                 {
-                    //Debug.Log(dstToTarget);
 
-                    Debug.DrawRay(transform.position, dirToTarget * dstToTarget,Color.red);
+                    Debug.DrawRay(transform.position, dirToTarget * dstToTarget, Color.red);
                     _enemyDistance = dstToTarget;
                     _isEnemyInView = true;
                 }
-                
             }
-            else if(!Physics2D.Raycast(transform.position, dirToTarget, Vector3.Distance(transform.position, target.position), obstacleMask))
+            else if(targetsInViewRadius[i] != this.GetComponent<Collider2D>())
             {
-                
-                dstToTarget = Vector3.Distance(transform.position, target.position);
-                _isEnemyInView = false;
+                    dstToTarget = Vector3.Distance(transform.position, target.position);
+                    Debug.DrawRay(transform.position, dirToTarget * dstToTarget, Color.blue);
+
+                    _enemyDistance = dstToTarget;
+                    _isEnemyInView = false;
             }
         }
     }
