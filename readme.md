@@ -13,12 +13,12 @@ This separation was made so that other people may add their folders and fight wi
 >more on the rules of matches here:
 
 ## The original Neural Network
-As stated in the beginning the original neural network is 
+As stated in the beginning the original neural network is using genetic algorithm to train the bots, it is not completely finished. Neural Network itself is working, however the genetic algorithm has some bugs that  
 
 
-$$
-\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.
-$$
+```math
+\Sigma(z)
+```
 
 
 
