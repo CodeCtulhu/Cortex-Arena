@@ -1,6 +1,5 @@
 
 
-
 ## Cortex Arena description
 this project has been made in Unity to practice Neural Networks with Genetic Algortihm. 
 There are 2 folders in the **Assets** folder:
