@@ -17,15 +17,14 @@ more on the rules of matches here:
 
 
 
+
 **Note:** a note is something that needs to be mentioned but is apart from the context.
 {: .note}
 
 
-{::comment}
-This is a comment which is
-completely ignored.
-{:/comment}
+
+
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNDAyNTg2MzAzXX0=
+eyJoaXN0b3J5IjpbLTE3MTIyNzk2NzFdfQ==
 -->
