@@ -1,3 +1,6 @@
+
+
+
 ## Cortex Arena description
 this project has been made in Unity to practice Neural Networks with Genetic Algortihm. 
 There are 2 folders in the **Assets** folder:
@@ -13,3 +16,12 @@ This separation was made so that other people may add their folders and fight wi
 As stated in the beginning the original neural network is 
 
 
+$$
+\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.
+$$
+
+
+
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMjc4NTkxMjI2XX0=
+-->
