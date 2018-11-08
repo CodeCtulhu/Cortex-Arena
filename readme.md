@@ -1,11 +1,11 @@
 
-### Table of Content
+## Table of Content
 1. [Project description](#project-description)
-2. The original Neural Network
+2. [The original Neural Network](#the-original-neural-network)
    * [Sigmoid](#sigmoid)
    * [SoftSign](#softsign)
-   * [The Whole Formula](#the-whole-formula-together-will-be-as-such:)
-
+   * [The Whole Formula](#the-whole-formula-together-will-be-as-such)
+   * [Issues](#issues)
 ### Project description 
 this project has been made in Unity to practice Neural Networks with Genetic Algortihm. 
 There are 2 folders in the **Assets** folder:
@@ -25,13 +25,13 @@ The neural network itself uses Sigmoid and SoftSign (I used 2 because they retur
 those functions are used to compress values to be used by the next layer.
 These are the formulas:
 >>>
-### Sigmoid
+#### Sigmoid
 # $` \dfrac{1}{(1+e^x)} `$
 
-### SoftSign
+#### SoftSign
 # $` \dfrac{x}{(1+|x|)} `$
 
-### The whole formula together will be as such:
+#### The whole formula together will be as such:
 # $` \dfrac{1}{(1+e^(\Sigma(w_i * x_i) + 1))} `$ 
 
 >>>
@@ -40,6 +40,9 @@ If you want to know more about the neural networks you can read my blog post abo
 For training i used genetic algorithm which takes the weights of the neurons and uses cross-over and mutation of random weights
 
 ###Issues
+The network itself if finished, and the algorithm works, how ever there are some bugs with the algorithm thus preventing it from futher learning. And the network itself is not flexible (As in able to be made into any size).
+These issues are easy to solve however i had limited time to finish this and i will add and fix what is needed when i will have time.
+
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbMjc4NTkxMjI2XX0=
 -->
