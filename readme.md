@@ -1,6 +1,10 @@
 
 ### Table of Content
-1.[Project description](#project-description)
+1. [Project description](#project-description)
+2. The original Neural Network
+   * [Sigmoid](#sigmoid)
+   * [SoftSign](#softsign)
+   * [The Whole Formula](#the-whole-formula-together-will-be-as-such:)
 
 ### Project description 
 this project has been made in Unity to practice Neural Networks with Genetic Algortihm. 
