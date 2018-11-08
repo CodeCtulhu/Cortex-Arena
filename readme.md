@@ -1,6 +1,6 @@
 
 ### Table of Content
-1.[Project description](html://#Project-description)
+1.[Project description](https://gitlab.com/codeCtulhu/Cortex-Arena#Project-description)
 
 ### Project description 
 this project has been made in Unity to practice Neural Networks with Genetic Algortihm. 
