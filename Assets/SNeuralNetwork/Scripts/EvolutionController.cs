@@ -124,11 +124,11 @@ public class EvolutionController : MonoBehaviour
                 SpawnAgents(nextGenerationCodes);
 
                 weakGenerationInitialization = true;
-                deathTimer = 1000005;
+                deathTimer = 15;
             }
 
 
-            //Debug.Log("timer 2: " + deathTimer);
+            //Debug.Log("timer 2: " + deathTimer); to 
             if (deathTimer <= 0)
             {
                 GameObject[] bots = GameObject.FindGameObjectsWithTag("Bot");
