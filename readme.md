@@ -55,9 +55,8 @@ These are the formulas:
 # $` \dfrac{x}{(1+|x|)} `$
 
 #### The whole formula together will be as such:
-# ` ![\Large x=\frac{1}{(1+e^(\Sigma(w_i * x_i) + 1))}](https://latex.codecogs.com/svg.latex?x%3D%5Cfrac%7B-b%5Cpm%5Csqrt%7Bb%5E2-4ac%7D%7D%7B2a%7D) `
+# ` \dfrac{1}{(1+e^(\Sigma(w_i * x_i) + 1))}]`
 
-![\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}](https://latex.codecogs.com/svg.latex?x%3D%5Cfrac%7B-b%5Cpm%5Csqrt%7Bb%5E2-4ac%7D%7D%7B2a%7D)
 >>>
 If you want to know more about the neural networks you can read my blog post about it [here](https://steemit.com/programming/@reborninferno/day-2-or-part-2-neural-networks-and-what-you-eat-them-with)
 
